@@ -25,7 +25,8 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     bcmath \
     exif \
     pcntl \
-    soap
+    soap \
+    calendar
 
 # Instala o Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
