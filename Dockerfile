@@ -75,6 +75,9 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Garante que o Nginx não vai rodar como daemon (necessário para o Supervisor)
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 
+# Cria o arquivo que sinaliza que a instalação foi concluída
+RUN touch /var/www/html/storage/app/installed
+
 # Ajusta as permissões das pastas do Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
