@@ -34,12 +34,12 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Define o diretório de trabalho
 WORKDIR /var/www/html
 
-# Copia os arquivos de dependência e instala os pacotes do Composer
-COPY composer.json composer.lock ./
-RUN composer install --no-interaction --optimize-autoloader --no-dev
-
-# Copia o resto do código da aplicação
+# --- MUDANÇA IMPORTANTE AQUI ---
+# Copia PRIMEIRO todos os arquivos da aplicação
 COPY . .
+
+# DEPOIS, instala os pacotes do Composer
+RUN composer install --no-interaction --optimize-autoloader --no-dev
 
 
 # Estágio 2: Produção - A imagem final, limpa e otimizada
