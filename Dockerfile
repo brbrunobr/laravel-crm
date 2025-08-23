@@ -1,9 +1,9 @@
 # ------------------------------------------------------------------------------
-# Estágio 1: Builder  (compila extensões e instala dependências do Composer)
+# Estágio 1: Builder
 # ------------------------------------------------------------------------------
 FROM php:8.2-fpm-alpine AS builder
 
-# 1) Dependências de build (apenas para compilar extensões e rodar composer)
+# Dependências de build
 RUN apk add --no-cache \
     build-base \
     git \
@@ -14,10 +14,10 @@ RUN apk add --no-cache \
     freetype-dev \
     libjpeg-turbo-dev \
     libpng-dev \
-    zlib-dev
+    zlib-dev \
+    openssl
 
-# 2) Compila extensões do PHP necessárias (Laravel/Krayin)
-#    - gd (com jpeg/freetype), pdo_mysql, zip, bcmath, exif, pcntl, soap, calendar
+# Extensões PHP
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
  && docker-php-ext-install -j"$(nproc)" \
     gd \
@@ -27,33 +27,34 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     exif \
     pcntl \
     soap \
-    calendar
+    calendar \
+    opcache
 
-# 3) Composer (copiado da imagem oficial)
+# Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# 4) Diretório de trabalho
 WORKDIR /var/www/html
 
-# 5) Melhora o cache do Composer: copia apenas manifestos e instala **sem scripts**
-#    - Evita rodar @php artisan package:discover antes do código estar presente
+# Copia arquivos do composer primeiro (cache de camadas)
 COPY composer.json composer.lock ./
+
+# Instala dependências
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_MEMORY_LIMIT=-1
 RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader --no-scripts
 
-# 6) Agora copia o restante do app (inclui "artisan" e pastas do projeto)
+# Copia o resto da aplicação
 COPY . .
 
-# 7) Gera autoload otimizado (ainda sem disparar scripts do Composer)
+# Gera autoload otimizado
 RUN composer dump-autoload -o
 
 # ------------------------------------------------------------------------------
-# Estágio 2: Runtime (imagem final enxuta com Nginx + PHP-FPM + supervisord)
+# Estágio 2: Runtime
 # ------------------------------------------------------------------------------
 FROM php:8.2-fpm-alpine
 
-# 1) Dependências necessárias em runtime (sem toolchain de build)
+# Dependências runtime
 RUN apk add --no-cache \
     nginx \
     supervisor \
@@ -64,36 +65,37 @@ RUN apk add --no-cache \
     libjpeg-turbo \
     libpng \
     bash \
-    tzdata
+    tzdata \
+    openssl \
+    netcat-openbsd
 
-# 2) Diretório de trabalho
 WORKDIR /var/www/html
 
-# 3) Copia extensões e INIs do PHP do "builder"
+# Copia extensões PHP do builder
 COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
 COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
 
-# 4) Copia o código da aplicação já com vendor (do "builder")
+# Copia aplicação com vendor
 COPY --from=builder /var/www/html /var/www/html
 
-# 5) Copia configs do Nginx e do Supervisor (você já tem esses arquivos)
+# Configuração do PHP
+RUN echo "memory_limit=256M" > /usr/local/etc/php/conf.d/memory.ini && \
+    echo "upload_max_filesize=32M" > /usr/local/etc/php/conf.d/upload.ini && \
+    echo "post_max_size=32M" >> /usr/local/etc/php/conf.d/upload.ini && \
+    echo "max_execution_time=300" > /usr/local/etc/php/conf.d/execution.ini
+
+# Copia configurações
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY nginx.conf /etc/nginx/nginx.conf
-
-# 6) Copia o entrypoint (script acima) e dá permissão de execução
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# 7) Garante que o Nginx não rode como daemon (o supervisord gerencia)
-RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+# Permissões
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh && \
+    chown -R www-data:www-data /var/www/html
 
-# 8) Exponha a porta HTTP para o proxy (Coolify/Traefik)
+# NÃO adicionar "daemon off;" aqui - já está no nginx.conf
+
 EXPOSE 80
 
-# 9) Define o entrypoint:
-#    - Ele vai normalizar APP_KEY, caches, permissões etc
 ENTRYPOINT ["docker-entrypoint.sh"]
-
-# 10) Comando padrão:
-#     - O supervisor gerencia Nginx e PHP-FPM; seu "supervisord.conf" deve ter os programas
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
