@@ -1,14 +1,14 @@
-# Estágio 1: Builder - Instala todas as dependências de build e compila tudo
+# ------------------------------------------------------------------------------
+# Estágio 1: Builder  (compila extensões e instala dependências do Composer)
+# ------------------------------------------------------------------------------
 FROM php:8.2-fpm-alpine AS builder
 
-# Instala dependências do sistema necessárias para compilação
+# 1) Dependências de build (apenas para compilar extensões e rodar composer)
 RUN apk add --no-cache \
     build-base \
     git \
     curl \
-    supervisor \
     libzip-dev \
-    zip \
     oniguruma-dev \
     libxml2-dev \
     freetype-dev \
@@ -16,9 +16,10 @@ RUN apk add --no-cache \
     libpng-dev \
     zlib-dev
 
-# Instala extensões do PHP necessárias para o Laravel/Krayin
+# 2) Compila extensões do PHP necessárias (Laravel/Krayin)
+#    - gd (com jpeg/freetype), pdo_mysql, zip, bcmath, exif, pcntl, soap, calendar
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) \
+ && docker-php-ext-install -j"$(nproc)" \
     gd \
     pdo_mysql \
     zip \
@@ -28,24 +29,31 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     soap \
     calendar
 
-# Instala o Composer
+# 3) Composer (copiado da imagem oficial)
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Define o diretório de trabalho
+# 4) Diretório de trabalho
 WORKDIR /var/www/html
 
-# --- MUDANÇA IMPORTANTE AQUI ---
-# Copia PRIMEIRO todos os arquivos da aplicação
+# 5) Melhora o cache do Composer: copia apenas manifestos e instala **sem scripts**
+#    - Evita rodar @php artisan package:discover antes do código estar presente
+COPY composer.json composer.lock ./
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    COMPOSER_MEMORY_LIMIT=-1
+RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader --no-scripts
+
+# 6) Agora copia o restante do app (inclui "artisan" e pastas do projeto)
 COPY . .
 
-# DEPOIS, instala os pacotes do Composer
-RUN composer install --no-interaction --optimize-autoloader --no-dev
+# 7) Gera autoload otimizado (ainda sem disparar scripts do Composer)
+RUN composer dump-autoload -o
 
-
-# Estágio 2: Produção - A imagem final, limpa e otimizada
+# ------------------------------------------------------------------------------
+# Estágio 2: Runtime (imagem final enxuta com Nginx + PHP-FPM + supervisord)
+# ------------------------------------------------------------------------------
 FROM php:8.2-fpm-alpine
 
-# Instala apenas as dependências de sistema necessárias para RODAR (não para compilar)
+# 1) Dependências necessárias em runtime (sem toolchain de build)
 RUN apk add --no-cache \
     nginx \
     supervisor \
@@ -54,36 +62,38 @@ RUN apk add --no-cache \
     libxml2 \
     freetype \
     libjpeg-turbo \
-    libpng
+    libpng \
+    bash \
+    tzdata
 
-# Define o diretório de trabalho
+# 2) Diretório de trabalho
 WORKDIR /var/www/html
 
-# Copia os arquivos de configuração das extensões PHP já compiladas
+# 3) Copia extensões e INIs do PHP do "builder"
 COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
-
-# Copia os arquivos das extensões PHP já compiladas
 COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
 
-# Copia a aplicação inteira (incluindo a pasta /vendor) do estágio 'builder'
-COPY --from=builder /var/www/html .
+# 4) Copia o código da aplicação já com vendor (do "builder")
+COPY --from=builder /var/www/html /var/www/html
 
-# Copia os arquivos de configuração do Nginx e Supervisor
+# 5) Copia configs do Nginx e do Supervisor (você já tem esses arquivos)
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Garante que o Nginx não vai rodar como daemon (necessário para o Supervisor)
+# 6) Copia o entrypoint (script acima) e dá permissão de execução
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# 7) Garante que o Nginx não rode como daemon (o supervisord gerencia)
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 
-# Cria o arquivo que sinaliza que a instalação foi concluída
-RUN touch /var/www/html/storage/app/installed
-
-# Ajusta as permissões das pastas do Laravel
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Expõe a porta 80 para o tráfego web
+# 8) Exponha a porta HTTP para o proxy (Coolify/Traefik)
 EXPOSE 80
 
-# Comando para iniciar o Supervisor, que por sua vez inicia o Nginx e o PHP-FPM
+# 9) Define o entrypoint:
+#    - Ele vai normalizar APP_KEY, caches, permissões etc
+ENTRYPOINT ["docker-entrypoint.sh"]
+
+# 10) Comando padrão:
+#     - O supervisor gerencia Nginx e PHP-FPM; seu "supervisord.conf" deve ter os programas
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
