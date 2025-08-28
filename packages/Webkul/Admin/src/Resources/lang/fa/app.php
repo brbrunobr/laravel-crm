@@ -370,7 +370,7 @@ return [
 
         'layouts' => [
             'powered-by' => [
-                'description' => 'توسعه یافته توسط :krayin، یک پروژه متن باز از :webkul.',
+                'description' => 'توسعه یافته توسط Delta Ai.',
             ],
 
             'header' => [
