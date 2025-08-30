@@ -367,7 +367,7 @@ return [
 
         'layouts' => [
             'powered-by' => [
-                'description' => 'Powered by Delta Ai',
+                'description' => 'Powered by <a href="https://deltaai.solutions/suport" target="_blank" style="color: #0E90D9;">Delta Ai</a>',
             ],
             // 'powered-by' => [
             //     'description' => 'Powered by :krayin, an open-source project by :webkul.',
