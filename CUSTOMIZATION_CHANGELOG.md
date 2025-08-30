@@ -57,7 +57,7 @@ Updated all installer language files in `packages/Webkul/Installer/src/Resources
 
 ## Logo System
 The login page logo system is correctly implemented to use the configurable admin logo:
-- Uses `core()->getConfigData('general.design.admin_logo.logo_image')` from admin settings
+- Uses `core()->getConfigData('general.general.admin_logo.logo_image')` from admin settings (corrected path)
 - Falls back to default logo if no custom logo is configured
 - This allows users to set their company logo in the admin panel settings
 
