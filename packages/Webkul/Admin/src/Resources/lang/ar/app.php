@@ -366,6 +366,10 @@ return [
         ],
 
         'layouts' => [
+            'powered-by' => [
+                'description' => 'مدعوم من Delta Ai',
+            ],
+
             'header' => [
                 'mega-search' => [
                     'title' => 'البحث الشامل',

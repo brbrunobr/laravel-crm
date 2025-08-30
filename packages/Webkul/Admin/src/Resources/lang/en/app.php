@@ -367,7 +367,7 @@ return [
 
         'layouts' => [
             'powered-by' => [
-                'description' => 'Powered by :krayin',
+                'description' => 'Powered by Delta Ai',
             ],
             // 'powered-by' => [
             //     'description' => 'Powered by :krayin, an open-source project by :webkul.',

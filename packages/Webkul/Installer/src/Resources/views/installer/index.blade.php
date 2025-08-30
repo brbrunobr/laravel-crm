@@ -129,7 +129,7 @@
                     <div class="m-auto grid h-[100vh] max-w-[362px] items-end">
                         <div class="grid gap-4">
                             <img
-                                src="{{ vite()->asset('images/krayin-logo.svg', 'installer') }}"
+                                src="{{ vite()->asset('images/logo.svg', 'installer') }}"
                                 alt="@lang('installer::app.installer.index.krayin-logo')"
                             >
 
@@ -256,7 +256,7 @@
                         <p class="mb-6 w-full place-self-end text-left">
                             <a
                                 class="bg-white text-brandColor underline"
-                                href="https://krayincrm.com/"
+                                href="https://deltaai.solutions/"
                                 target="_blank"
                             >
                                 @lang('installer::app.installer.index.krayin')
@@ -728,7 +728,7 @@
                                     <x-installer::form.control-group.control
                                         type="text"
                                         name="app_name"
-                                        ::value="envData.app_name ?? 'Krayin'"
+                                        ::value="envData.app_name ?? 'Delta Ai'"
                                         rules="required"
                                         :label="trans('installer::app.installer.index.environment-configuration.application-name')"
                                         :placeholder="trans('installer::app.installer.index.environment-configuration.krayin')"
@@ -1020,14 +1020,14 @@
 
                     <div class="flex items-center justify-between px-4 py-2.5">
                         <a
-                            href="https://forums.krayincrm.com/"
+                            href="https://deltaai.solutions/forum/"
                             class="cursor-pointer text-xs font-semibold text-brandColor"
                         >
                             @lang('installer::app.installer.index.installation-completed.krayin-forums')
                         </a>
 
                         <a
-                            href="https://krayincrm.com/extensions/"
+                            href="https://deltaai.solutions/extensions/"
                             class="cursor-pointer rounded-md border border-brandColor bg-white px-3 py-1.5 font-semibold text-brandColor hover:opacity-90"
                         >
                             @lang('installer::app.installer.index.installation-completed.explore-krayin-extensions')
