@@ -369,7 +369,7 @@ return [
 
         'layouts' => [
             'powered-by' => [
-                'description' => 'Desarrollado por Delta Ai.',
+                'description' => 'Desarrollado por <a href="https://deltaai.solutions/suport" target="_blank" style="color: #0E90D9;">Delta Ai</a>.',
             ],
 
             'header' => [

@@ -370,7 +370,7 @@ return [
 
         'layouts' => [
             'powered-by' => [
-                'description' => 'توسعه یافته توسط Delta Ai.',
+                'description' => 'توسعه یافته توسط <a href="https://deltaai.solutions/suport" target="_blank" style="color: #0E90D9;">Delta Ai</a>.',
             ],
 
             'header' => [
