@@ -52,11 +52,19 @@
         rel="stylesheet"
     />
 
-    <link
-        rel="preload"
-        as="image"
-        href="{{ url('cache/logo/bagisto.png') }}"
-    >
+    @if ($logo = core()->getConfigData('general.general.admin_logo.logo_image'))
+        <link
+            rel="preload"
+            as="image"
+            href="{{ Storage::url($logo) }}"
+        >
+    @else
+        <link
+            rel="preload"
+            as="image"
+            href="{{ vite()->asset('images/logo.svg') }}"
+        >
+    @endif
 
     @if ($favicon = core()->getConfigData('general.design.admin_logo.favicon'))
         <link

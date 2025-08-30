@@ -266,7 +266,7 @@
 
                             <a
                                 class="bg-white text-brandColor underline"
-                                href="https://webkul.com/"
+                                href="https://deltaai.solutions/"
                                 target="_blank"
                             >
                                 @lang('installer::app.installer.index.webkul')
