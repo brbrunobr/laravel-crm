@@ -216,7 +216,7 @@
                         <div
                             v-for="record in available.records"
                             class="flex cursor-pointer items-center justify-between border-b px-8 py-4 text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-gray-950 max-lg:hidden"
-                            @click.stop="selectedMail=true; editModal(record.actions.find(action => action.index === 'edit'))"
+                            @click.stop="selectedMail=true; (() => { const action = record.actions.find(action => action.index === 'edit'); if (action) editModal(action); })()"
                         >
                             <!-- Select Box -->
                             <div class="flex w-full items-center justify-start gap-[124px]">
@@ -303,7 +303,7 @@
                         <div
                             class="hidden border-b px-4 py-4 text-black dark:border-gray-800 dark:text-gray-300 max-lg:block"
                             v-for="record in available.records"
-                            @click.stop="selectedMail=true; editModal(record.actions.find(action => action.index === 'edit'))"
+                            @click.stop="selectedMail=true; (() => { const action = record.actions.find(action => action.index === 'edit'); if (action) editModal(action); })()"
                         >
                             <div class="mb-2 flex items-center justify-between">
                                 <!-- Mass Actions for Mobile Cards -->
@@ -674,6 +674,10 @@
                     },
         
                     editModal(row) {
+                        if (!row) {
+                            return;
+                        }
+
                         if(row.title == 'View') {
                             window.location.href = row.url;
         
