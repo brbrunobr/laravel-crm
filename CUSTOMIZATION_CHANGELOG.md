@@ -39,6 +39,11 @@ Updated all installer language files in `packages/Webkul/Installer/src/Resources
 - Cleaned up powered-by section to use new language structure without parameters
 - Logo system already properly configured to use admin settings
 
+#### Mobile Sidebar (`packages/Webkul/Admin/src/Resources/views/components/layouts/sidebar/mobile/index.blade.php`):
+- Fixed logo system to use correct admin settings path
+- Changed from incorrect `general.design.admin_logo.logo_image` to proper `general.general.admin_logo.logo_image`
+- Now consistently uses configurable admin logo like other components
+
 #### Installer Template (`packages/Webkul/Installer/src/Resources/views/installer/index.blade.php`):
 - Updated logo image reference from `krayin-logo.svg` to `logo.svg`
 - Changed default application name from "Krayin" to "Delta Ai"
@@ -56,10 +61,11 @@ Updated all installer language files in `packages/Webkul/Installer/src/Resources
 - Kept package name as-is for technical compatibility
 
 ## Logo System
-The login page logo system is correctly implemented to use the configurable admin logo:
-- Uses `core()->getConfigData('general.general.admin_logo.logo_image')` from admin settings (corrected path)
+The logo system is correctly implemented across all admin interface components to use the configurable admin logo:
+- Uses `core()->getConfigData('general.general.admin_logo.logo_image')` from admin settings
 - Falls back to default logo if no custom logo is configured
 - This allows users to set their company logo in the admin panel settings
+- Applied to: login page, main header, and mobile menu sidebar
 
 ## Technical Notes
 - All internal namespaces, class names, and package structures remain unchanged to preserve functionality
@@ -84,15 +90,16 @@ The login page logo system is correctly implemented to use the configurable admi
 13. `packages/Webkul/Installer/src/Resources/lang/tr/app.php`
 14. `packages/Webkul/Installer/src/Resources/lang/vi/app.php`
 
-### Template Files (2 files):
+### Template Files (3 files):
 15. `packages/Webkul/Admin/src/Resources/views/sessions/login.blade.php`
-16. `packages/Webkul/Installer/src/Resources/views/installer/index.blade.php`
+16. `packages/Webkul/Admin/src/Resources/views/components/layouts/sidebar/mobile/index.blade.php`
+17. `packages/Webkul/Installer/src/Resources/views/installer/index.blade.php`
 
 ### Configuration Files (1 file):
-17. `composer.json`
+18. `composer.json`
 
 ### Asset Files (1 file):
-18. `packages/Webkul/Installer/src/Resources/assets/images/logo.svg` (copied)
+19. `packages/Webkul/Installer/src/Resources/assets/images/logo.svg` (copied)
 
 ## Testing Recommendations
 1. Test installation process with new branding
