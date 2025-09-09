@@ -201,6 +201,10 @@
 
             methods: {
                 openModal(stage) {
+                    if (!stage) {
+                        return; // Gracefully handle undefined/null stage
+                    }
+                    
                     if (this.currentStage.code == stage.code) {
                         return;
                     }
