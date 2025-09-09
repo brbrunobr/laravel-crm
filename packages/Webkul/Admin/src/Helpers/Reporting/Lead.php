@@ -62,7 +62,8 @@ class Lead extends AbstractReporting
     {
         $configValue = core()->getConfigData($configKey);
         
-        if (empty($configValue)) {
+        // Check if config is empty, null, or only whitespace
+        if (empty($configValue) || trim($configValue) === '') {
             return [$defaultCode];
         }
 
@@ -70,9 +71,12 @@ class Lead extends AbstractReporting
         $codes = array_map('trim', explode(',', $configValue));
         
         // Filter out empty values
-        return array_filter($codes, function($code) {
+        $filteredCodes = array_filter($codes, function($code) {
             return !empty($code);
         });
+
+        // If after filtering we have no valid codes, return default
+        return empty($filteredCodes) ? [$defaultCode] : $filteredCodes;
     }
 
     /**
