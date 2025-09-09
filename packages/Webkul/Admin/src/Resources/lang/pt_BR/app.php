@@ -1315,6 +1315,10 @@ return [
                 'add-stage-info'       => 'Adicionar novo estágio para o seu Funil',
                 'newly-added'          => 'Adicionado Recentemente',
                 'stage-delete-success' => 'Estágio excluído com sucesso',
+                'stage-type'           => 'Tipo de Estágio',
+                'is-won-stage'         => 'Estágio de Ganho',
+                'is-lost-stage'        => 'Estágio de Perda',
+                'stage-type-info'      => 'Marque este estágio como ganho ou perda para relatórios do dashboard',
             ],
 
             'edit'  => [
@@ -1335,6 +1339,10 @@ return [
                 'add-new-stages'       => 'Adicionar Novos Estágios',
                 'add-stage-info'       => 'Adicionar novo estágio para o seu Funil',
                 'stage-delete-success' => 'Estágio excluído com sucesso',
+                'stage-type'           => 'Tipo de Estágio',
+                'is-won-stage'         => 'Estágio de Ganho',
+                'is-lost-stage'        => 'Estágio de Perda',
+                'stage-type-info'      => 'Marque este estágio como ganho ou perda para relatórios do dashboard',
             ],
         ],
 

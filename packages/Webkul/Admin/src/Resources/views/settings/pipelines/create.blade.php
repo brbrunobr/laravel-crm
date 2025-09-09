@@ -225,6 +225,59 @@
                                         </x-admin::form.control-group>
 
                                         {!! view_render_event('admin.settings.pipelines.create.form.stages.probability.after') !!}
+
+                                        {!! view_render_event('admin.settings.pipelines.create.form.stages.stage_type.before') !!}
+
+                                        <!-- Stage Type Flags -->
+                                        <div class="mb-4" v-if="isDragable(element)">
+                                            <x-admin::form.control-group.label>
+                                                @lang('admin::app.settings.pipelines.edit.stage-type')
+                                            </x-admin::form.control-group.label>
+                                            
+                                            <div class="flex flex-col gap-2 mt-2">
+                                                <!-- Won Stage Checkbox -->
+                                                <div class="flex items-center gap-2">
+                                                    <x-admin::form.control-group.control
+                                                        type="checkbox"
+                                                        ::name="'stages[' + element.id + '][is_won_stage]'"
+                                                        ::id="'stages_' + element.id + '_is_won_stage'"
+                                                        value="1"
+                                                        v-model="element['is_won_stage']"
+                                                        :label="trans('admin::app.settings.pipelines.edit.is-won-stage')"
+                                                    />
+                                                    <label 
+                                                        ::for="'stages_' + element.id + '_is_won_stage'"
+                                                        class="cursor-pointer text-sm text-gray-800 dark:text-gray-300"
+                                                    >
+                                                        @lang('admin::app.settings.pipelines.edit.is-won-stage')
+                                                    </label>
+                                                </div>
+
+                                                <!-- Lost Stage Checkbox -->
+                                                <div class="flex items-center gap-2">
+                                                    <x-admin::form.control-group.control
+                                                        type="checkbox"
+                                                        ::name="'stages[' + element.id + '][is_lost_stage]'"
+                                                        ::id="'stages_' + element.id + '_is_lost_stage'"
+                                                        value="1"
+                                                        v-model="element['is_lost_stage']"
+                                                        :label="trans('admin::app.settings.pipelines.edit.is-lost-stage')"
+                                                    />
+                                                    <label 
+                                                        ::for="'stages_' + element.id + '_is_lost_stage'"
+                                                        class="cursor-pointer text-sm text-gray-800 dark:text-gray-300"
+                                                    >
+                                                        @lang('admin::app.settings.pipelines.edit.is-lost-stage')
+                                                    </label>
+                                                </div>
+
+                                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                    @lang('admin::app.settings.pipelines.edit.stage-type-info')
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {!! view_render_event('admin.settings.pipelines.create.form.stages.stage_type.after') !!}
                                     </div>
                                 </div>
                                 
@@ -332,7 +385,9 @@
                             'id': 'stage_' + this.stageCount++,
                             'code': '',
                             'name': '',
-                            'probability': 100
+                            'probability': 100,
+                            'is_won_stage': false,
+                            'is_lost_stage': false,
                         });
                     },
 

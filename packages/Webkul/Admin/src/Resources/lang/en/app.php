@@ -1324,6 +1324,10 @@ return [
                 'add-stage-info'       => 'Add new stage for your Pipeline',
                 'newly-added'          => 'Newly Added',
                 'stage-delete-success' => 'Stage Deleted Successfully',
+                'stage-type'           => 'Stage Type',
+                'is-won-stage'         => 'Won Stage',
+                'is-lost-stage'        => 'Lost Stage',
+                'stage-type-info'      => 'Mark this stage as won or lost for dashboard reporting',
             ],
 
             'edit'  => [
@@ -1344,6 +1348,10 @@ return [
                 'add-new-stages'       => 'Add New Stages',
                 'add-stage-info'       => 'Add new stage for your Pipeline',
                 'stage-delete-success' => 'Stage Deleted Successfully',
+                'stage-type'           => 'Stage Type',
+                'is-won-stage'         => 'Won Stage',
+                'is-lost-stage'        => 'Lost Stage',
+                'stage-type-info'      => 'Mark this stage as won or lost for dashboard reporting',
             ],
         ],
 

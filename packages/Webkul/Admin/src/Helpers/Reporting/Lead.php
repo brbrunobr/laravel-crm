@@ -64,7 +64,8 @@ class Lead extends AbstractReporting
         
         // Check if config is empty, null, or only whitespace
         if (empty($configValue) || trim($configValue) === '') {
-            return [$defaultCode];
+            // If configuration is not available, try database flags first, then intelligent fallback
+            return $this->getStageCodesByDatabaseFlags($defaultCode) ?: $this->getStageCodesByIntelligentGuessing($defaultCode);
         }
 
         // Split by comma and trim whitespace
@@ -75,8 +76,104 @@ class Lead extends AbstractReporting
             return !empty($code);
         });
 
-        // If after filtering we have no valid codes, return default
-        return empty($filteredCodes) ? [$defaultCode] : $filteredCodes;
+        // If after filtering we have no valid codes, return database flags or intelligent fallback
+        return empty($filteredCodes) ? ($this->getStageCodesByDatabaseFlags($defaultCode) ?: $this->getStageCodesByIntelligentGuessing($defaultCode)) : $filteredCodes;
+    }
+
+    /**
+     * Get stage codes based on database flags (is_won_stage, is_lost_stage)
+     *
+     * @param string $type 'won' or 'lost'
+     * @return array|null
+     */
+    protected function getStageCodesByDatabaseFlags(string $type): ?array
+    {
+        $columnName = $type === 'won' ? 'is_won_stage' : 'is_lost_stage';
+        
+        $stages = $this->stageRepository->where($columnName, true)->get(['code']);
+        
+        if ($stages->isEmpty()) {
+            return null; // No stages marked with flags
+        }
+        
+        return $stages->pluck('code')->toArray();
+    }
+
+    /**
+     * Intelligently guess stage codes based on common patterns and names
+     *
+     * @param string $type 'won' or 'lost'
+     * @return array
+     */
+    protected function getStageCodesByIntelligentGuessing(string $type): array
+    {
+        if ($type === 'won') {
+            // Common patterns for won stages
+            $commonWonCodes = ['won', 'ganho', 'fechado', 'sucesso', 'closed-won', 'closed_won', 'victory', 'vendido', 'finalizado'];
+            $commonWonNames = ['won', 'ganho', 'fechado', 'sucesso', 'closed won', 'victory', 'vendido', 'finalizado', 'completed', 'success'];
+        } else {
+            // Common patterns for lost stages
+            $commonLostCodes = ['lost', 'perda', 'perdido', 'cancelado', 'closed-lost', 'closed_lost', 'failed', 'rejected', 'descartado'];
+            $commonLostNames = ['lost', 'perda', 'perdido', 'cancelado', 'closed lost', 'failed', 'rejected', 'descartado', 'cancelled', 'failure'];
+        }
+
+        // Get all stages from database
+        $allStages = $this->stageRepository->all(['code', 'name']);
+        
+        $matchedCodes = [];
+        
+        // First, try to match by code
+        foreach ($allStages as $stage) {
+            $codeToCheck = strtolower(trim($stage->code ?? ''));
+            
+            if ($type === 'won' && in_array($codeToCheck, $commonWonCodes)) {
+                $matchedCodes[] = $stage->code;
+            } elseif ($type === 'lost' && in_array($codeToCheck, $commonLostCodes)) {
+                $matchedCodes[] = $stage->code;
+            }
+        }
+
+        // If no matches by code, try to match by name
+        if (empty($matchedCodes)) {
+            foreach ($allStages as $stage) {
+                $nameToCheck = strtolower(trim($stage->name ?? ''));
+                
+                if ($type === 'won' && in_array($nameToCheck, $commonWonNames)) {
+                    $matchedCodes[] = $stage->code;
+                } elseif ($type === 'lost' && in_array($nameToCheck, $commonLostNames)) {
+                    $matchedCodes[] = $stage->code;
+                }
+            }
+        }
+
+        // If still no matches, look for partial matches
+        if (empty($matchedCodes)) {
+            foreach ($allStages as $stage) {
+                $codeToCheck = strtolower(trim($stage->code ?? ''));
+                $nameToCheck = strtolower(trim($stage->name ?? ''));
+                
+                if ($type === 'won') {
+                    // Look for words that suggest "won" in the code or name
+                    if (str_contains($codeToCheck, 'won') || str_contains($codeToCheck, 'ganho') || 
+                        str_contains($codeToCheck, 'fech') || str_contains($codeToCheck, 'sucess') ||
+                        str_contains($nameToCheck, 'won') || str_contains($nameToCheck, 'ganho') || 
+                        str_contains($nameToCheck, 'fech') || str_contains($nameToCheck, 'sucess')) {
+                        $matchedCodes[] = $stage->code;
+                    }
+                } else {
+                    // Look for words that suggest "lost" in the code or name
+                    if (str_contains($codeToCheck, 'lost') || str_contains($codeToCheck, 'perd') || 
+                        str_contains($codeToCheck, 'cancel') || str_contains($codeToCheck, 'fail') ||
+                        str_contains($nameToCheck, 'lost') || str_contains($nameToCheck, 'perd') || 
+                        str_contains($nameToCheck, 'cancel') || str_contains($nameToCheck, 'fail')) {
+                        $matchedCodes[] = $stage->code;
+                    }
+                }
+            }
+        }
+
+        // If we found matches, return them, otherwise fallback to the original default
+        return !empty($matchedCodes) ? $matchedCodes : [$type];
     }
 
     /**
