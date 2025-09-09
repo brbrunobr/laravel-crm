@@ -40,11 +40,39 @@ class Lead extends AbstractReporting
     ) {
         $this->allStageIds = $this->stageRepository->pluck('id')->toArray();
 
-        $this->wonStageIds = $this->stageRepository->where('code', 'won')->pluck('id')->toArray();
+        // Get configurable stage codes from configuration
+        $wonStageCodes = $this->getConfigurableStageCodesList('dashboard.reporting.stage_settings.won_stage_codes', 'won');
+        $lostStageCodes = $this->getConfigurableStageCodesList('dashboard.reporting.stage_settings.lost_stage_codes', 'lost');
 
-        $this->lostStageIds = $this->stageRepository->where('code', 'lost')->pluck('id')->toArray();
+        $this->wonStageIds = $this->stageRepository->whereIn('code', $wonStageCodes)->pluck('id')->toArray();
+
+        $this->lostStageIds = $this->stageRepository->whereIn('code', $lostStageCodes)->pluck('id')->toArray();
 
         parent::__construct();
+    }
+
+    /**
+     * Get list of stage codes from configuration, with fallback to default
+     *
+     * @param string $configKey
+     * @param string $defaultCode
+     * @return array
+     */
+    protected function getConfigurableStageCodesList(string $configKey, string $defaultCode): array
+    {
+        $configValue = core()->getConfigData($configKey);
+        
+        if (empty($configValue)) {
+            return [$defaultCode];
+        }
+
+        // Split by comma and trim whitespace
+        $codes = array_map('trim', explode(',', $configValue));
+        
+        // Filter out empty values
+        return array_filter($codes, function($code) {
+            return !empty($code);
+        });
     }
 
     /**

@@ -2190,6 +2190,25 @@ return [
                 ],
             ],
 
+            'dashboard' => [
+                'title' => 'Dashboard Settings',
+                'info'  => 'Dashboard configuration for the application.',
+
+                'reporting' => [
+                    'title' => 'Reporting Settings',
+                    'info'  => 'Configure reporting parameters for dashboard statistics.',
+
+                    'stage-settings' => [
+                        'title'                 => 'Stage Settings',
+                        'info'                  => 'Configure which stage codes represent won and lost leads for dashboard statistics.',
+                        'won-stage-codes'       => 'Won Stage Codes',
+                        'won-stage-codes-info'  => 'Comma-separated list of stage codes that represent won leads (e.g. won,closed-won,success)',
+                        'lost-stage-codes'      => 'Lost Stage Codes',
+                        'lost-stage-codes-info' => 'Comma-separated list of stage codes that represent lost leads (e.g. lost,closed-lost,failed)',
+                    ],
+                ],
+            ],
+
             'email' => [
                 'title' => 'Email Settings',
                 'info'  => 'Email configuration for the application.',

@@ -2036,6 +2036,25 @@ return [
                 ],
             ],
 
+            'dashboard' => [
+                'title' => 'Configurações do Dashboard',
+                'info'  => 'Configuração do dashboard para a aplicação.',
+
+                'reporting' => [
+                    'title' => 'Configurações de Relatórios',
+                    'info'  => 'Configure parâmetros de relatórios para estatísticas do dashboard.',
+
+                    'stage-settings' => [
+                        'title'                 => 'Configurações de Estágios',
+                        'info'                  => 'Configure quais códigos de estágio representam negócios ganhos e perdidos para as estatísticas do dashboard.',
+                        'won-stage-codes'       => 'Códigos de Estágios Ganhos',
+                        'won-stage-codes-info'  => 'Lista separada por vírgulas dos códigos de estágio que representam negócios ganhos (ex: won,closed-won,success)',
+                        'lost-stage-codes'      => 'Códigos de Estágios Perdidos',
+                        'lost-stage-codes-info' => 'Lista separada por vírgulas dos códigos de estágio que representam negócios perdidos (ex: lost,closed-lost,failed)',
+                    ],
+                ],
+            ],
+
             'email' => [
                 'title' => 'Configurações de E-mail',
                 'info'  => 'Configuração de e-mail para a aplicação.',

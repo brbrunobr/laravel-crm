@@ -254,13 +254,51 @@ return [
     ],
 
     /**
+     * Dashboard.
+     */
+    [
+        'key'  => 'dashboard',
+        'name' => 'admin::app.configuration.index.dashboard.title',
+        'info' => 'admin::app.configuration.index.dashboard.info',
+        'sort' => 2,
+    ], [
+        'key'  => 'dashboard.reporting',
+        'name' => 'admin::app.configuration.index.dashboard.reporting.title',
+        'info' => 'admin::app.configuration.index.dashboard.reporting.info',
+        'icon' => 'icon-setting',
+        'sort' => 1,
+    ], [
+        'key'    => 'dashboard.reporting.stage_settings',
+        'name'   => 'admin::app.configuration.index.dashboard.reporting.stage-settings.title',
+        'info'   => 'admin::app.configuration.index.dashboard.reporting.stage-settings.info',
+        'sort'   => 1,
+        'fields' => [
+            [
+                'name'       => 'won_stage_codes',
+                'title'      => 'admin::app.configuration.index.dashboard.reporting.stage-settings.won-stage-codes',
+                'type'       => 'text',
+                'default'    => 'won',
+                'validation' => 'required',
+                'info'       => 'admin::app.configuration.index.dashboard.reporting.stage-settings.won-stage-codes-info',
+            ], [
+                'name'       => 'lost_stage_codes',
+                'title'      => 'admin::app.configuration.index.dashboard.reporting.stage-settings.lost-stage-codes',
+                'type'       => 'text',
+                'default'    => 'lost',
+                'validation' => 'required',
+                'info'       => 'admin::app.configuration.index.dashboard.reporting.stage-settings.lost-stage-codes-info',
+            ],
+        ],
+    ],
+
+    /**
      * Email.
      */
     [
         'key'  => 'email',
         'name' => 'admin::app.configuration.index.email.title',
         'info' => 'admin::app.configuration.index.email.info',
-        'sort' => 2,
+        'sort' => 3,
     ], [
         'key'  => 'email.imap',
         'name' => 'admin::app.configuration.index.email.imap.title',
